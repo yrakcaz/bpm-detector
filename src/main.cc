@@ -1,5 +1,7 @@
 #include <cstring>
-#include "../include/detector.hh"
+#include <iostream>
+
+#include <detector.hh>
 
 int main(int argc, char** argv)
 {
@@ -14,8 +16,6 @@ int main(int argc, char** argv)
     {
         SoundSystem system;
         system.load(argv[1]);
-        system.start();
-        system.pause();
         Detector detect(system);
         std::cout << detect.bpm_get() << std::endl;
     }

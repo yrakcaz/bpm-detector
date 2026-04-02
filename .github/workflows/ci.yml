@@ -1,0 +1,27 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - name: g++
+          - name: clang++
+            configure_flags: --with-clang
+    name: build (${{ matrix.name }})
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: sudo apt-get install -y clang libsndfile1-dev
+
+      - name: Configure
+        run: ./configure ${{ matrix.configure_flags }}
+
+      - name: Build
+        run: make

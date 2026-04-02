@@ -1,110 +1,48 @@
 #ifndef DETECTOR_HH
 # define DETECTOR_HH
 
-# include "sound-system.hh"
 # include <vector>
 
-/**
-** @def WINDOW
-** @brief Size of a song sample.
-*/
+# include "soundsystem.hh"
+
+// Size of a song sample window.
 # define WINDOW 4096
 
-/**
-** @def RATIO
-** @brief Ratio for the peak detection.
-*/
+// Ratio threshold for peak detection.
 # define RATIO 1.3
 
-/**
-** @class Detector
-** @brief Class which has to detect the BPM of the song.
-*/
+// BPM detector: analyzes audio energy and detects peaks to compute tempo.
 class Detector
 {
     public:
-        /**
-        ** @fn Detector();
-        ** @brief Default constructor.
-        */
-        Detector();
-        /**
-        ** @fn Detector(SoundSystem& system);
-        ** @brief Principal constructor.
-        ** @param system SoundSystem containing initialized song.
-        */
-        Detector(SoundSystem& system);
-        /**
-        ** @fn ~Detector();
-        ** @brief Default destructor.
-        */
+        // Constructor taking an initialized SoundSystem.
+        Detector(const SoundSystem& system);
+        // Default destructor.
         ~Detector();
 
-        /**
-        ** @fn SoundSystem& system_get();
-        ** @brief Getter on the SoundSystem attribute.
-        ** @return Returns the system_ attribute.
-        */
-        SoundSystem& system_get();
-        /**
-        ** @fn double bpm_get();
-        ** @brief Final method which returns the bpm.
-        ** @return Returns a double which is the bpm of the song.
-        */
-        double bpm_get();
+        // Returns the computed BPM of the song.
+        int bpm_get();
 
     private:
-        /**
-        ** @fn int nrj_get(int* data, int offset);
-        ** @brief Function which calculate the energy of a song sample.
-        ** @param data Datas of the song.
-        ** @param offset Offset of the sample into data.
-        ** @return Returns an integer which represent the energy of the sample.
-        */
-        int nrj_get(int* data, int offset);
-        /**
-        ** @fn void peaks_set();
-        ** @briefs Fill the energy peaks array.
-        */
+        // Calculates the energy of a song sample at the given offset.
+        int nrj_get(const int* data, int offset);
+        // Fills the energy peaks array.
         void peaks_set();
-        /**
-        ** @fn void laps_set();
-        ** Fills the laps array.
-        */
+        // Fills the laps array.
         void laps_set();
-        /**
-        ** @fn double normalize(double bpm);
-        ** @brief Divide or multiply per 2 the bpm while it isn't between 70 and 200.
-        ** @param bpm Unnormalized bpm.
-        ** @return Normalized bpm.
-        */
+        // Normalizes bpm by halving or doubling until it falls in [70, 200].
         double normalize(double bpm);
 
     private:
-        /**
-        ** @var system_
-        ** @brief SoundSystem containing the initialized song.
-        */
-        SoundSystem system_;
-        /*
-        ** @var nrj1024_
-        ** @brief Vector representing energy.
-        */
+        // SoundSystem containing the initialized song.
+        const SoundSystem& system_;
+        // Energy vector (1024-sample windows).
         std::vector<double> nrj1024_;
-        /*
-        ** @var nrj44100_
-        ** @brief Vector representing energy 44100Hz.
-        */
+        // Energy vector (44100-sample windows).
         std::vector<double> nrj44100_;
-        /*
-        ** @var peaks_
-        ** @brief Vector representing energy peaks.
-        */
+        // Energy peak positions.
         std::vector<bool> peaks_;
-        /*
-        ** @var laps_
-        ** @brief Vector representing laps_ between energy peaks.
-        */
+        // Distances between energy peaks.
         std::vector<int> laps_;
 };
 

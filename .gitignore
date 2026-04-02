@@ -1,2 +1,8 @@
+*.o
 *.wav
 *.mp3
+*.flac
+bpm-detector
+*.tar.bz2
+core*
+makefile.rules

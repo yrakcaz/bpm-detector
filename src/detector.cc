@@ -1,15 +1,13 @@
-#include "../include/detector.hh"
+#include <cmath>
 
-Detector::Detector()
-{
-}
+#include <detector.hh>
 
-Detector::Detector(SoundSystem& system)
+Detector::Detector(const SoundSystem& system)
     : system_(system)
-    , nrj1024_(system.len_get(), 0.f)
-    , nrj44100_(system.len_get(), 0.f)
-    , peaks_(system.len_get(), false)
-    , laps_(system.len_get(), 0)
+    , nrj1024_(system.len_get() / 1024, 0.f)
+    , nrj44100_(system.len_get() / 1024, 0.f)
+    , peaks_(system.len_get() / 1024, false)
+    , laps_(system.len_get() / 1024, 0)
 {
 }
 
@@ -17,12 +15,7 @@ Detector::~Detector()
 {
 }
 
-SoundSystem& Detector::system_get()
-{
-    return system_;
-}
-
-int Detector::nrj_get(int* data, int offset)
+int Detector::nrj_get(const int* data, int offset)
 {
     double ret = 0.f;
     unsigned int max = offset + WINDOW;
@@ -33,7 +26,7 @@ int Detector::nrj_get(int* data, int offset)
 
 void Detector::peaks_set()
 {
-    int* data = system_.left_data_get();
+    const int* data = system_.left_data_get();
     for (unsigned int i = 0; i < system_.len_get() / 1024; i++)
         nrj1024_[i] = nrj_get(data, 1024 * i);
     double sum = 0.f;
@@ -79,7 +72,7 @@ double Detector::normalize(double bpm)
     return bpm;
 }
 
-double Detector::bpm_get()
+int Detector::bpm_get()
 {
     laps_set();
     int occ[86];
@@ -104,5 +97,5 @@ double Detector::bpm_get()
         prec = tmax + 1;
     double div = occ[tmax] + occ[prec];
     moy = !div ? 0 : (double)((tmax * occ[tmax]) + (prec * occ[prec])) / div;
-    return normalize(60.f / (moy * (1024.f / 44100.f)));
+    return static_cast<int>(std::round(normalize(60.f / (moy * (1024.f / 44100.f)))));
 }
